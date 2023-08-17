@@ -1,0 +1,109 @@
+---
+import Layout from "../../layouts/Layout.astro";
+export const prerender = false;
+---
+
+<Layout title="Timer">
+  <main class="h-screen w-screen bg-slate-100">
+    <h1 id="datetime"></h1>
+    <h2 id="timezoneDisplay"></h2>
+    <h3 id="eventDirection">Time to Event:</h3>
+    <div
+      id="countdown"
+      class="w-screen h-fit flex text-center text-9xl items-center justify-center space-x-10 select-none"
+    >
+      <div class="flex flex-col">
+        <span id="days">0</span>
+        <span class="text-base">Days</span>
+      </div>
+      <span class="bg-slate-100 align-top">:</span>
+      <div class="flex flex-col gap-2">
+        <span id="hours">0</span>
+        <span class="text-base">Hours</span>
+      </div>
+      <span class="bg-slate-100 align-top">:</span>
+      <div class="flex flex-col gap-2">
+        <span id="minutes">0</span>
+        <span class="text-base">Minutes</span>
+      </div>
+      <span class="bg-slate-100 align-top">:</span>
+      <div class="flex flex-col gap-2">
+        <span id="seconds">0</span>
+        <span class="text-base">Seconds</span>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  const params = new URLSearchParams(window.location.search);
+  const time = params.get("value");
+
+  function formatNumber(number) {
+    return number < 10 ? "0" + number : number;
+  }
+
+  function updateCountdown(targetDateTime) {
+    const now = new Date();
+    let timeDifference = new Date(targetDateTime) - now;
+
+    const eventDirectionElement = document.getElementById(
+      "eventDirection"
+    ) as HTMLHeadingElement;
+
+    if (timeDifference < 0) {
+      eventDirectionElement.textContent = "Time Since Event:";
+      timeDifference = -timeDifference; // Convert to positive for calculation
+    } else {
+      eventDirectionElement.textContent = "Time to Event:";
+    }
+
+    const days = Math.floor(timeDifference / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(
+      (timeDifference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+    );
+    const minutes = Math.floor(
+      (timeDifference % (1000 * 60 * 60)) / (1000 * 60)
+    );
+    const seconds = Math.floor((timeDifference % (1000 * 60)) / 1000);
+
+    const daysElement = document.getElementById("days") as HTMLSpanElement;
+    const hoursElement = document.getElementById("hours") as HTMLSpanElement;
+    const minutesElement = document.getElementById(
+      "minutes"
+    ) as HTMLSpanElement;
+    const secondsElement = document.getElementById(
+      "seconds"
+    ) as HTMLSpanElement;
+
+    daysElement.textContent = formatNumber(days);
+    hoursElement.textContent = formatNumber(hours);
+    minutesElement.textContent = formatNumber(minutes);
+    secondsElement.textContent = formatNumber(seconds);
+  }
+
+  fetch(`/timer/get.json?value=${time}`, {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+    .then((res) => res.json())
+    .then((res: { datetime: string; timezone: string }) => {
+      const { datetime, timezone } = res;
+      const datetimeElement = document.getElementById(
+        "datetime"
+      ) as HTMLHeadingElement;
+      datetimeElement.innerText = datetime;
+      const timezoneElement = document.getElementById(
+        "timezoneDisplay"
+      ) as HTMLHeadingElement;
+      timezoneElement.textContent = `Timezone: ${timezone}`;
+
+      // Initial countdown update
+      updateCountdown(datetime);
+
+      // Update countdown every second
+      setInterval(() => updateCountdown(datetime), 1000);
+    });
+</script>

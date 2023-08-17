@@ -1,0 +1,77 @@
+<form
+  action="/post.json"
+  method="post"
+  enctype="multipart/form-data"
+  class="flex p-5 mx-auto my-auto"
+  id="form"
+>
+  <label for="date">Date:</label>
+  <input type="date" id="date" name="date" class="border p-2 rounded mr-2" />
+
+  <label for="time">Time:</label>
+  <input type="time" id="time" name="time" class="border p-2 rounded" />
+  <input type="hidden" name="timezone" id="timezone" />
+  <button
+    type="submit"
+    class="bg-slate-500 px-4 rounded-md hover:bg-slate-600"
+    id="button">Submit</button
+  >
+</form>
+
+<script>
+  let dateElement: HTMLInputElement,
+    timeElement: HTMLInputElement,
+    timezoneElement: HTMLInputElement;
+  document.addEventListener("DOMContentLoaded", function () {
+    // Get the current date and time
+    const now = new Date();
+
+    // Format the date and time to match input requirements
+    const currentDate = now.toISOString().substring(0, 10); // Gets date in 'YYYY-MM-DD' format
+    const currentTime = now.toTimeString().substring(0, 5); // Gets time in 'HH:MM' format
+
+    // Set the input values
+    dateElement = document.getElementById("date") as HTMLInputElement;
+    timeElement = document.getElementById("time") as HTMLInputElement;
+    timezoneElement = document.getElementById("timezone") as HTMLInputElement;
+
+    if (dateElement) dateElement.value = currentDate;
+    if (timeElement) timeElement.value = currentTime;
+    if (timezoneElement)
+      timezoneElement.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  });
+
+  function getSelectedDatetime(): Date | null {
+    if (!dateElement || !timeElement || !timezoneElement) return null;
+
+    const date = dateElement.value;
+    const time = timeElement.value;
+
+    const datetime = new Date(`${date}T${time}:00`);
+    return datetime;
+  }
+
+  const form = document.getElementById("form") as HTMLFormElement;
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+
+    const datetime = getSelectedDatetime();
+    if (!datetime) return;
+
+    fetch("/post.json", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        datetime: datetime.toISOString(),
+        timezone: timezoneElement.value,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        // redirect to the new post /data
+        window.location.href = `${window.location.origin}/timer?value=${data}`;
+      });
+  });
+</script>
