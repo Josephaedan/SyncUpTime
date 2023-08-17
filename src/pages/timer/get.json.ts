@@ -1,4 +1,5 @@
 import type { APIContext } from "astro";
+export const prerender = false;
 
 interface encryptedData {
   time: string;
