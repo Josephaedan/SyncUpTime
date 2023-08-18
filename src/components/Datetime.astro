@@ -40,7 +40,7 @@
     const now = new Date();
 
     // Format the date and time to match input requirements
-    const currentDate = now.toISOString().substring(0, 10); // Gets date in 'YYYY-MM-DD' format
+    const currentDate = now.toLocaleDateString('en-CA'); // Gets date in 'YYYY-MM-DD' format
     const currentTime = now.toTimeString().substring(0, 5); // Gets time in 'HH:MM' format
 
     // Set the input values
