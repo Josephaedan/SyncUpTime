@@ -4,10 +4,12 @@ export const prerender = false;
 ---
 
 <Layout title="Timer">
-  <main class="h-screen w-screen bg-slate-100">
-    <h1 id="datetime"></h1>
-    <h2 id="timezoneDisplay"></h2>
-    <h3 id="eventDirection">Time to Event:</h3>
+  <main class="h-screen w-screen bg-slate-100 flex flex-col gap-4 items-center justify-center">
+    <div id="errorDisplay" class="hidden">
+      <h1 class="text-center text-4xl font-semibold">Oops! It seems that the timer you are looking for does not exist.</h1>
+      <a href="/"><button class="mx-auto mt-10 block bg-slate-400 px-4 font-bold rounded-sm py-2 hover:bg-slate-500">Back to Home</button></a>
+  </div>
+    <h3 id="eventDirection" class="text-4xl font-semibold text-center"></h3>
     <div
       id="countdown"
       class="w-screen h-fit flex text-center text-9xl items-center justify-center space-x-10 select-none"
@@ -16,21 +18,29 @@ export const prerender = false;
         <span id="days">0</span>
         <span class="text-base">Days</span>
       </div>
-      <span class="bg-slate-100 align-top">:</span>
+      <span class="-translate-y-6">:</span>
       <div class="flex flex-col gap-2">
         <span id="hours">0</span>
         <span class="text-base">Hours</span>
       </div>
-      <span class="bg-slate-100 align-top">:</span>
+      <span class="-translate-y-6">:</span>
       <div class="flex flex-col gap-2">
         <span id="minutes">0</span>
         <span class="text-base">Minutes</span>
       </div>
-      <span class="bg-slate-100 align-top">:</span>
+      <span class="-translate-y-6">:</span>
       <div class="flex flex-col gap-2">
         <span id="seconds">0</span>
         <span class="text-base">Seconds</span>
       </div>
+    </div>
+    <div id="sender">
+      <h1 class="text-xl font-bold text-center">Sender's Time</h1>
+      <h2 id="senderTimezone"></h2>
+    </div>
+    <div id="user">
+      <h1 class="text-xl font-bold text-center">Your Time</h1>
+      <h2 id="userTimezone"></h2>
     </div>
   </main>
 </Layout>
@@ -39,13 +49,13 @@ export const prerender = false;
   const params = new URLSearchParams(window.location.search);
   const time = params.get("value");
 
-  function formatNumber(number) {
-    return number < 10 ? "0" + number : number;
+  function formatNumber(number: number): string {
+    return number < 10 ? "0" + number : number.toString();
   }
 
-  function updateCountdown(targetDateTime) {
+  function updateCountdown(eventDate: Date) {
     const now = new Date();
-    let timeDifference = new Date(targetDateTime) - now;
+    let timeDifference = eventDate.getTime() - now.getTime();
 
     const eventDirectionElement = document.getElementById(
       "eventDirection"
@@ -90,20 +100,62 @@ export const prerender = false;
   })
     .then((res) => res.json())
     .then((res: { datetime: string; timezone: string }) => {
-      const { datetime, timezone } = res;
-      const datetimeElement = document.getElementById(
-        "datetime"
-      ) as HTMLHeadingElement;
-      datetimeElement.innerText = datetime;
-      const timezoneElement = document.getElementById(
-        "timezoneDisplay"
-      ) as HTMLHeadingElement;
-      timezoneElement.textContent = `Timezone: ${timezone}`;
+      const { datetime, timezone: senderTimezone } = res;
 
       // Initial countdown update
-      updateCountdown(datetime);
+      const eventDate = new Date(datetime);
+      updateCountdown(eventDate);
+
+      // Update sender timezone and time
+      const senderTimezoneElement = document.getElementById(
+        "senderTimezone"
+      ) as HTMLHeadingElement;
+      const senderTimeFormatted = new Intl.DateTimeFormat('en-US', {
+        timeZone: senderTimezone,
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit'
+      }).format(eventDate);
+      senderTimezoneElement.textContent = `${senderTimeFormatted}, ${senderTimezone}`;
+
+      // Update user timezone and time
+      const userTimezoneElement = document.getElementById(
+        "userTimezone"
+      ) as HTMLHeadingElement;
+      const userTimeFormatted = new Intl.DateTimeFormat('en-US', {
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric', 
+        hour: '2-digit', 
+        minute: '2-digit', 
+        second: '2-digit'
+      }).format(eventDate);
+      userTimezoneElement.textContent = `${userTimeFormatted}, ${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
 
       // Update countdown every second
-      setInterval(() => updateCountdown(datetime), 1000);
-    });
+      setInterval(() => updateCountdown(eventDate), 1000);
+    }).catch((err) => {
+    console.error(err);
+
+    const errorDisplay = document.getElementById('errorDisplay') as HTMLDivElement;
+    const countdownDisplay = document.getElementById('countdown') as HTMLDivElement;
+    const senderDisplay = document.getElementById('sender') as HTMLDivElement;
+    const userDisplay = document.getElementById('user') as HTMLDivElement;
+    const eventDirectionElement = document.getElementById(
+      "eventDirection"
+    ) as HTMLHeadingElement;
+
+    // Show error message
+    errorDisplay.classList.remove('hidden');
+
+    // Hide the other elements
+    countdownDisplay.classList.add('hidden');
+    senderDisplay.classList.add('hidden');
+    userDisplay.classList.add('hidden');
+    eventDirectionElement.classList.add('hidden');
+});
 </script>
