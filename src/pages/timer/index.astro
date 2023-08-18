@@ -4,7 +4,7 @@ export const prerender = false;
 ---
 
 <Layout title="Timer">
-  <main class="h-screen w-screen bg-slate-100 flex flex-col gap-4 items-center justify-center">
+  <main id="main" class="h-screen w-screen hidden bg-slate-100 flex flex-col gap-4 items-center justify-center">
     <div id="errorDisplay" class="hidden">
       <h1 class="text-center text-4xl font-semibold">Oops! It seems that the timer you are looking for does not exist.</h1>
       <a href="/"><button class="mx-auto mt-10 block bg-slate-400 px-4 font-bold rounded-sm py-2 hover:bg-slate-500">Back to Home</button></a>
@@ -135,6 +135,10 @@ export const prerender = false;
         second: '2-digit'
       }).format(eventDate);
       userTimezoneElement.textContent = `${userTimeFormatted}, ${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
+
+      // Unhide main element
+      const mainElement = document.getElementById("main") as HTMLDivElement;
+      mainElement.classList.remove("hidden");
 
       // Update countdown every second
       setInterval(() => updateCountdown(eventDate), 1000);
