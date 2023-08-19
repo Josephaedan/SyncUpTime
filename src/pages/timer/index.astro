@@ -12,26 +12,26 @@ export const prerender = false;
     <h3 id="eventDirection" class="text-4xl font-semibold text-center"></h3>
     <div
       id="countdown"
-      class="w-screen h-fit flex text-center text-9xl items-center justify-center space-x-10 select-none"
+      class="w-screen h-fit flex text-center text-5xl md:text-9xl items-center justify-center space-x-2 md:space-x-6 select-none"
     >
-      <div class="flex flex-col">
+      <div class="flex flex-col gap-2">
         <span id="days">0</span>
-        <span class="text-base">Days</span>
+        <span class="text-xs md:text-base">Days</span>
       </div>
-      <span class="-translate-y-6">:</span>
+      <span class="-translate-y-5 md:-translate-y-6">:</span>
       <div class="flex flex-col gap-2">
         <span id="hours">0</span>
-        <span class="text-base">Hours</span>
+        <span class="text-xs md:text-base">Hours</span>
       </div>
-      <span class="-translate-y-6">:</span>
+      <span class="-translate-y-5 md:-translate-y-6">:</span>
       <div class="flex flex-col gap-2">
         <span id="minutes">0</span>
-        <span class="text-base">Minutes</span>
+        <span class="text-xs md:text-base">Minutes</span>
       </div>
-      <span class="-translate-y-6">:</span>
+      <span class="-translate-y-5 md:-translate-y-6">:</span>
       <div class="flex flex-col gap-2">
         <span id="seconds">0</span>
-        <span class="text-base">Seconds</span>
+        <span class="text-xs md:text-base">Seconds</span>
       </div>
     </div>
     <div id="sender">
