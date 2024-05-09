@@ -25,11 +25,30 @@
 
     <button
       type="submit"
-      class="bg-slate-400 px-4 font-bold rounded-sm py-2 hover:bg-slate-500"
-      id="button">Sync Up!</button
-    >
+      class="bg-slate-400 px-4 font-bold rounded-sm py-2 hover:bg-slate-500 flex gap-2 items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
+      id="button">
+      <div id="loader" class="loader hidden"></div>
+      <p id="button-text">Sync Up!</p>
+    </button>
   </form>
 </main>
+
+<style>
+  .loader {
+    width: 24px;
+    height: 24px;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 5px solid;
+    border-color: #000 #0000;
+    animation: l1 1s infinite;
+  }
+  @keyframes l1 {
+    to {
+      transform: rotate(0.5turn);
+    }
+  }
+</style>
 
 <script>
   let dateElement: HTMLInputElement,
@@ -40,7 +59,7 @@
     const now = new Date();
 
     // Format the date and time to match input requirements
-    const currentDate = now.toLocaleDateString('en-CA'); // Gets date in 'YYYY-MM-DD' format
+    const currentDate = now.toLocaleDateString("en-CA"); // Gets date in 'YYYY-MM-DD' format
     const currentTime = now.toTimeString().substring(0, 5); // Gets time in 'HH:MM' format
 
     // Set the input values
@@ -70,6 +89,14 @@
 
     const datetime = getSelectedDatetime();
     if (!datetime) return;
+
+    // Add loading state
+    const button = document.getElementById("button") as HTMLButtonElement;
+    button.disabled = true;
+    const buttonText = document.getElementById("button-text") as HTMLParagraphElement;
+    buttonText.textContent = "Loading...";
+    const loader = document.getElementById("loader") as HTMLDivElement;
+    loader.classList.remove("hidden");
 
     fetch("/post.json", {
       method: "POST",
