@@ -4,7 +4,7 @@ export const prerender = false;
 ---
 
 <Layout title="Timer">
-  <main id="main" class="h-screen w-screen hidden bg-slate-100 flex flex-col gap-4 items-center justify-center">
+  <main id="main" class="h-screen w-screen hidden bg-slate-100 flex-col gap-4 items-center justify-center">
     <div id="errorDisplay" class="hidden">
       <h1 class="text-center text-4xl font-semibold">Oops! It seems that the timer you are looking for does not exist.</h1>
       <a href="/"><button class="mx-auto mt-10 block bg-slate-400 px-4 font-bold rounded-sm py-2 hover:bg-slate-500">Back to Home</button></a>
@@ -42,10 +42,26 @@ export const prerender = false;
       <h1 class="text-xl font-bold text-center">Your Time</h1>
       <h2 id="userTimezone"></h2>
     </div>
+    <add-to-calendar-button id="add-to-calendar" lightMode="dark" options="'Apple', 'Google', 'iCal', 'Microsoft365', 'MicrosoftTeams', 'Outlook.com', 'Yahoo'"/>
   </main>
 </Layout>
 
+<script >
+
+</script>
+
 <script>
+  // Lazy load add-to-calendar-button
+  const observer = new IntersectionObserver((entries) => {
+  for (const entry of entries) {
+    if (!entry.isIntersecting) continue;
+    observer.disconnect();
+    import('@node_modules/add-to-calendar-button/dist/module/index.js');
+  }
+  });
+  const instances = document.querySelectorAll('add-to-calendar-button');
+  for (const instance of instances) observer.observe(instance);
+
   const params = new URLSearchParams(window.location.search);
   const time = params.get("value");
 
@@ -136,9 +152,24 @@ export const prerender = false;
       }).format(eventDate);
       userTimezoneElement.textContent = `${userTimeFormatted}, ${Intl.DateTimeFormat().resolvedOptions().timeZone}`;
 
+      // Set attributes on the add-to-calendar button
+      const addToCalendarButton = document.getElementById("add-to-calendar");
+      if (addToCalendarButton) {
+        addToCalendarButton.setAttribute("name", "Sync up");
+        addToCalendarButton.setAttribute("startDate", eventDate.toLocaleDateString('en-CA', {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit'
+        }));
+        addToCalendarButton.setAttribute("startTime", eventDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false}));
+        addToCalendarButton.setAttribute("endTime", eventDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false}));
+        addToCalendarButton.setAttribute("timeZone", senderTimezone);
+      }
+
       // Unhide main element
       const mainElement = document.getElementById("main") as HTMLDivElement;
       mainElement.classList.remove("hidden");
+      mainElement.classList.add("flex");
 
       // Update countdown every second
       setInterval(() => updateCountdown(eventDate), 1000);
@@ -152,6 +183,11 @@ export const prerender = false;
     const eventDirectionElement = document.getElementById(
       "eventDirection"
     ) as HTMLHeadingElement;
+    const mainElement = document.getElementById("main") as HTMLDivElement;
+
+    // Unhide main element      
+    mainElement.classList.remove("hidden");
+    mainElement.classList.add("flex");
 
     // Show error message
     errorDisplay.classList.remove('hidden');
