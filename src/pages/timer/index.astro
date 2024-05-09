@@ -49,8 +49,10 @@ export const prerender = false;
   </main>
 </Layout>
 
-<script src="./copy-to-clipboard.ts"></script>
 <script>
+  // Import copy-to-clipboard script
+  import "./copy-to-clipboard.ts";
+
   // Lazy load add-to-calendar-button
   const observer = new IntersectionObserver((entries) => {
   for (const entry of entries) {
