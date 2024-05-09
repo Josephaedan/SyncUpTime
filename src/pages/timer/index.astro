@@ -42,14 +42,14 @@ export const prerender = false;
       <h1 class="text-xl font-bold text-center">Your Time</h1>
       <h2 id="userTimezone"></h2>
     </div>
-    <add-to-calendar-button id="add-to-calendar" lightMode="dark" options="'Apple', 'Google', 'iCal', 'Microsoft365', 'MicrosoftTeams', 'Outlook.com', 'Yahoo'"/>
+    <div class="flex gap-1">
+      <add-to-calendar-button id="add-to-calendar" lightMode="dark" options="'Apple', 'Google', 'iCal', 'Microsoft365', 'MicrosoftTeams', 'Outlook.com', 'Yahoo'"/>
+      <button type="button" id="copy-button" class="bg-stone-800 px-4 w-24 font-bold m-[2.08px] border shadow-2xl border-neutral-700 drop-shadow-2xl rounded-md text-center text-white transition-all duration-300 hover:bg-neutral-900 data-[status=clicked]:bg-neutral-900 " data-status="idle">Share</button>
+    </div>
   </main>
 </Layout>
 
-<script >
-
-</script>
-
+<script src="./copy-to-clipboard.ts"></script>
 <script>
   // Lazy load add-to-calendar-button
   const observer = new IntersectionObserver((entries) => {
