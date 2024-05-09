@@ -15,6 +15,7 @@
     "@astrojs/vercel": "^3.8.1",
     "@types/react": "^18.2.20",
     "@types/react-dom": "^18.2.7",
+    "add-to-calendar-button": "^2.6.14",
     "astro": "^2.10.9",
     "crypto-js": "^4.1.1",
     "pako": "^2.1.0",
